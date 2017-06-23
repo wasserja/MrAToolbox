@@ -37,5 +37,6 @@ Function    Set-IPAddress                     1.0     MrAToolbox
 Function    Start-Robocopy                    1.0     MrAToolbox
 Function    Start-Watch                       1.0     MrAToolbox
 Function    Test-IsAdmin                      1.0     MrAToolbox
+Function    Update-DnsServerResourceRecordA   1.0.1   MrAToolbox
 Function    Write-Log                         1.0     MrAToolbox
 </pre>
