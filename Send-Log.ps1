@@ -48,8 +48,7 @@ function Send-Log {
             
             # Creating anonymous credential
             if ($Credential.Username -eq $null) {
-                $SecurePassword = ConvertTo-SecureString -String 'anonymous' -AsPlainText -Force
-                $Credential = New-Object System.Management.Automation.PSCredential('anonymous',$SecurePassword)
+                $Credential = New-Object -TypeName System.Management.Automation.PSCredential('anonymous',(New-Object -TypeName System.Security.SecureString))
             }
 
             #Sending email 
