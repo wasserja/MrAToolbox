@@ -40,35 +40,45 @@ Get-LocalUser works, but I don't think that is available for older versions of O
 function Get-LocalAdministratorPasswordLastSet {
     [CmdletBinding()]
     param (
+        [parameter(
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true)]
         [string[]]$ComputerName = $env:COMPUTERNAME,
         [System.Management.Automation.PSCredential]$Credential = [System.Management.Automation.PSCredential]::Empty
     )
-    begin {}
+    begin {
+
+        function Get-LocalAdministratorAccountInformation {
+            param ()
+            $LocalAdministratorAccount = Get-WmiObject -Class Win32_UserAccount -Filter "LocalAccount='True' And Sid like '%-500'"
+            $LocalAdministratorPasswordLastSetProperties = @{
+                Username           = $LocalAdministratorAccount.Name
+                ComputerName       = $LocalAdministratorAccount.PSComputerName
+                PasswordLastSet    = (Get-Date).AddSeconds( - (([adsi]"WinNT://./$($LocalAdministratorAccount.Name),user").PasswordAge).Value)
+                SID                = $LocalAdministratorAccount.SID
+                FullName           = $LocalAdministratorAccount.FullName
+                Description        = $LocalAdministratorAccount.Description
+                Disabled           = $LocalAdministratorAccount.Disabled
+                AccountType        = $LocalAdministratorAccount.AccountType
+                PasswordChangeable = $LocalAdministratorAccount.PasswordChangeable
+                Lockout            = $LocalAdministratorAccount.Lockout
+            }
+            $LocalAdministratorPasswordLastSet = New-Object -TypeName PSCustomObject -Property $LocalAdministratorPasswordLastSetProperties
+            $LocalAdministratorPasswordLastSet
+        }
+
+    }
     process {
         foreach ($Computer in $ComputerName) {
             try {
                 Write-Verbose -Message "Attempting to get local administrator account information on $Computer"
-                $LocalAdministratorAccount = Get-WmiObject -Class Win32_UserAccount -Filter "LocalAccount='True' And Sid like '%-500'" -ComputerName $Computer -Credential $Credential -ErrorAction Stop
-                $LocalAdministratorPasswordLastSetProperties = [ordered]@{
-                    Username           = $LocalAdministratorAccount.Name
-                    ComputerName       = $LocalAdministratorAccount.PSComputerName
-                    PasswordLastSet    = (Get-Date).AddSeconds( -(([adsi]"WinNT://$Computer/$($LocalAdministratorAccount.Name),user").PasswordAge).Value)
-                    SID                = $LocalAdministratorAccount.SID
-                    FullName           = $LocalAdministratorAccount.FullName
-                    Description        = $LocalAdministratorAccount.Description
-                    Disabled           = $LocalAdministratorAccount.Disabled
-                    AccountType        = $LocalAdministratorAccount.AccountType
-                    PasswordChangeable = $LocalAdministratorAccount.PasswordChangeable
-                    Lockout            = $LocalAdministratorAccount.Lockout
-                }
-                $LocalAdministratorPasswordLastSet = New-Object -TypeName PSCustomObject -Property $LocalAdministratorPasswordLastSetProperties
-                $LocalAdministratorPasswordLastSet
+                Invoke-Command -ComputerName $Computer -ScriptBlock ${function:Get-LocalAdministratorAccountInformation} -Credential $Credential -ErrorAction Stop
             }
             catch [System.UnauthorizedAccessException] {
-                Write-Error -Message "Access is denied to $Computer"
+                Write-Error -Message $Error[0].Exception
             }
             catch {
-                Write-Error -Message "Unable to connect to $Computer"
+                Write-Error -Message $Error[0].Exception
             }
         
         }

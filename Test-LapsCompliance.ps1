@@ -22,9 +22,12 @@ Get-LapsCompliance -ComputerName WORKSHOP01 -Credential (Get-Credential)
 Created by: Jason Wasser @wasserja
 Modified: 7/12/2017 04:11:42 PM 
 #>
-function Get-LapsCompliance {
+function Test-LapsCompliance {
     [CmdletBinding()]
     param (
+        [parameter(
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true)]    
         [string[]]$ComputerName = $env:COMPUTERNAME,
         [System.Management.Automation.PSCredential]$Credential = [System.Management.Automation.PSCredential]::Empty
     )
@@ -46,10 +49,10 @@ function Get-LapsCompliance {
                 
                 $LapsPolicyConfigurationProperties = @{}
                 foreach ($Property in $LapsRegistryPolicyConfiguration.Property) {
-                    $LapsPolicyConfigurationProperties.Add($Property,$LapsRegistryPolicyConfiguration.GetValue($Property))
+                    $LapsPolicyConfigurationProperties.Add($Property, $LapsRegistryPolicyConfiguration.GetValue($Property))
                 }
-                $LapsPolicyConfigurationProperties.Add('IsLapsConfigured',$true)
-                $LapsPolicyConfiguration =  New-Object -TypeName PSCustomObject -Property $LapsPolicyConfigurationProperties
+                $LapsPolicyConfigurationProperties.Add('IsLapsConfigured', $true)
+                $LapsPolicyConfiguration = New-Object -TypeName PSCustomObject -Property $LapsPolicyConfigurationProperties
                 $LapsPolicyConfiguration
             }
             else {
@@ -104,7 +107,7 @@ function Get-LapsCompliance {
 
                         # Has the local administrator password been reset within the configured time
                         $LocalAdministratorPasswordLastSet = Get-LocalAdministratorPasswordLastSet -ComputerName $Computer -Credential $Credential
-                        $IsLapsLocalAdministratorPasswordValid = Invoke-Command -Session $Session -ScriptBlock ${function:Test-LapsAdministratorPassword} -ArgumentList $IsLapsConfigured.PasswordAgeDays,$LocalAdministratorPasswordLastSet.PasswordLastSet
+                        $IsLapsLocalAdministratorPasswordValid = Invoke-Command -Session $Session -ScriptBlock ${function:Test-LapsAdministratorPassword} -ArgumentList $IsLapsConfigured.PasswordAgeDays, $LocalAdministratorPasswordLastSet.PasswordLastSet
 
                         if ($IsLapsLocalAdministratorPasswordValid) {
                             Write-Verbose -Message "The local administrator password on $Computer was last set on $($LocalAdministratorPasswordLastSet.PasswordLastSet) which is within $($IsLapsConfigured.PasswordAgeDays) days."
@@ -145,6 +148,9 @@ function Get-LapsCompliance {
             }
             catch {
                 Write-Error -Message $Error[0].Exception
+                if ($Session.Name) {
+                    Remove-PSSession -Session $Session
+                }
             }
         }
     }
