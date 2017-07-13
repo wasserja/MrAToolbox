@@ -3,8 +3,8 @@
 Reset the local administrator password using LAPS.
 
 .DESCRIPTION
-This function sets the LAPS password expiration for a target computer to a date and time (now minus one day).
-After which a group policy refresh is called to allow the LAPS group policy client side extension to change
+This function sets the LAPS password expiration for a target computer to a date and time in the past (now minus one day).
+After which a group policy refresh is called to allow the LAPS group policy client-side extension to change
 the password.
 
 The LAPS password expiration attribute, ms-Mcs-AdmPwdExpirationTime, is based on local time zone. Due to the 
@@ -12,10 +12,9 @@ possible difference between the timezone of the target computer and the executin
 sets the password expiration to one day before right now.
 
 The function must be called from an account that has the privilige to change the ms-Mcs-AdmPwdExpirationTime
-attribute.
+attribute in Active Directory.
 
-Due to Active Directory site differences and replication times, the group policy refresh may not immediately
-change the administrator password.
+The function attempts to make the change on a domain controller in the site where the computer resides.
 
 .PARAMETER ComputerName
 Enter a computer name.

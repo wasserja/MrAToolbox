@@ -6,7 +6,7 @@ Test a computer for LAPS compliance.
 The Local Administrator Password Solution is a tool you can install on
 your computers to periodically change the local administrator password.
 This function will validate if the LAPS client-side extension is installed,
-if the registry has policy keys configured, and if the local administrator
+if the registry has LAPS policy keys configured, and if the local administrator
 password has been reset within the configured range.
 
 .PARAMETER ComputerName
@@ -21,6 +21,8 @@ Get-LapsCompliance -ComputerName WORKSHOP01 -Credential (Get-Credential)
 .NOTES
 Created by: Jason Wasser @wasserja
 Modified: 7/12/2017 04:11:42 PM 
+.LINK
+https://technet.microsoft.com/en-us/mt227395.aspx
 #>
 function Test-LapsCompliance {
     [CmdletBinding()]
@@ -87,8 +89,7 @@ function Test-LapsCompliance {
 
             try {
 
-            
-                # Setup session
+                # Setup remote PowerShell session
                 $Session = New-PSSession -ComputerName $Computer -Credential $Credential
 
                 # Is LAPS installed
@@ -98,7 +99,7 @@ function Test-LapsCompliance {
                 if ($IsLapsInstalled) {
                     Write-Verbose -Message "LAPS is installed on $Computer"
                 
-                    # Are LAPS-related registry-related policy items configured - Test-LapsPolicyConf
+                    # Are LAPS-related registry-related policy items configured
                     Write-Verbose -Message "Checking to see if LAPS is configured on $Computer"
                     $IsLapsConfigured = Invoke-Command -Session $Session -ScriptBlock ${function:Test-LapsPolicyConfiguration}
 
@@ -140,7 +141,7 @@ function Test-LapsCompliance {
                 $LapsCompliance = New-Object -TypeName PSCustomObject -Property $LapsComplianceProperties
                 $LapsCompliance
 
-                # Tear down session
+                # Tear down remove PowerShell session
                 Remove-PSSession $Session
             }
             catch [System.Management.Automation.Remoting.PSRemotingTransportException] {

@@ -1,9 +1,9 @@
 ﻿<#
 .SYNOPSIS
-Get the time for when the local administrator account password was last set.
+Get the time when the password was last set for the local administrator account.
 
 .DESCRIPTION
-Get the time for when the local administrator account password was last set.
+Get the time when the password was last set for the local administrator account.
 
 .PARAMETER ComputerName
 Enter a computer name.
@@ -32,10 +32,6 @@ PasswordLastSet : 7/12/2017 1:02:41 PM
 .NOTES
 Created by: Jason Wasser @wasserja
 Modified: 7/12/2017 01:05:19 PM 
-
-I need to convert this to CIM and maybe find a better way to get the local user password other than ADSI. 
-Get-LocalUser works, but I don't think that is available for older versions of OS and PowerShell
-
 #>
 function Get-LocalAdministratorPasswordLastSet {
     [CmdletBinding()]
@@ -75,12 +71,11 @@ function Get-LocalAdministratorPasswordLastSet {
                 Invoke-Command -ComputerName $Computer -ScriptBlock ${function:Get-LocalAdministratorAccountInformation} -Credential $Credential -ErrorAction Stop
             }
             catch [System.UnauthorizedAccessException] {
-                Write-Error -Message $Error[0].Exception
+                Write-Error -Message $_.Exception
             }
             catch {
-                Write-Error -Message $Error[0].Exception
+                Write-Error -Message $_.Exception
             }
-        
         }
     }
     end {}
