@@ -101,14 +101,14 @@ function Test-LapsCompliance {
                 
                     # Are LAPS-related registry-related policy items configured
                     Write-Verbose -Message "Checking to see if LAPS is configured on $Computer"
-                    $IsLapsConfigured = Invoke-Command -Session $Session -ScriptBlock ${function:Test-LapsPolicyConfiguration}
-
+                    $LapsConfiguration = Invoke-Command -Session $Session -ScriptBlock ${function:Test-LapsPolicyConfiguration}
+                    $IsLapsConfigured = $LapsConfiguration.IsLapsConfigured
                     if ($IsLapsConfigured) {
                         Write-Verbose -Message "LAPS registry policy keys were found on $Computer"
 
                         # Has the local administrator password been reset within the configured time
                         $LocalAdministratorPasswordLastSet = Get-LocalAdministratorPasswordLastSet -ComputerName $Computer -Credential $Credential
-                        $IsLapsLocalAdministratorPasswordValid = Invoke-Command -Session $Session -ScriptBlock ${function:Test-LapsAdministratorPassword} -ArgumentList $IsLapsConfigured.PasswordAgeDays, $LocalAdministratorPasswordLastSet.PasswordLastSet
+                        $IsLapsLocalAdministratorPasswordValid = Invoke-Command -Session $Session -ScriptBlock ${function:Test-LapsAdministratorPassword} -ArgumentList $LapsConfiguration.PasswordAgeDays, $LocalAdministratorPasswordLastSet.PasswordLastSet
 
                         if ($IsLapsLocalAdministratorPasswordValid) {
                             Write-Verbose -Message "The local administrator password on $Computer was last set on $($LocalAdministratorPasswordLastSet.PasswordLastSet) which is within $($IsLapsConfigured.PasswordAgeDays) days."
@@ -124,18 +124,22 @@ function Test-LapsCompliance {
                     else {
                         Write-Warning -Message "LAPS registry policy keys were NOT found on $Computer"
                         $IsLapsConfigured = $false
+                        $IsLapsLocalAdministratorPasswordValid = $false
                         $IsLapsCompliant = $false
                     }
                 }
                 else {
                     Write-Warning -Message "LAPS is not installed on $Computer."
+                    $IsLapsInstalled = $false
+                    $IsLapsConfigured = $false
+                    $IsLapsLocalAdministratorPasswordValid = $false
                     $IsLapsCompliant = $false
                 }
 
                 $LapsComplianceProperties = [ordered]@{
                     ComputerName                          = $Session.ComputerName
                     IsLapsInstalled                       = $IsLapsInstalled
-                    IsLapsConfigured                      = $IsLapsConfigured.IsLapsConfigured
+                    IsLapsConfigured                      = $IsLapsConfigured
                     IsLapsLocalAdministratorPasswordValid = $IsLapsLocalAdministratorPasswordValid
                     IsLapsCompliant                       = $IsLapsCompliant
                 }
