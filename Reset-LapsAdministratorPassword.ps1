@@ -22,6 +22,9 @@ Enter a computer name.
 .EXAMPLE
 Reset-LapsAdministratorPassword -ComputerName DRONEPC01
 
+.EXAMPLE
+Reset-LapsAdministratorPassword -ComputerName DRONEPC01 -Credential (Get-Credential)
+
 .NOTES
 Created by: Jason Wasser @wasserja
 Modified: 7/13/2017 10:08:11 AM 
