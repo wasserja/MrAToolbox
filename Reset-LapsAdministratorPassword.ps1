@@ -69,7 +69,12 @@ function Reset-LapsAdministratorPassword {
                 Write-Verbose -Message "Located domain controller $($ADDomainController.Name)"
 
                 Write-Verbose -Message "Setting LAPS password expiration attribute $LapsPasswordExpirationAttribute on AD Server $($ADDomainController.Name) for $Computer."
-                Set-ADComputer -Identity $Computer -Replace @{"$LapsPasswordExpirationAttribute" = $(Get-Date).AddDays(-1).Ticks} -Credential $Credential
+                if ($Credential.UserName -ne $null) {
+                    Set-ADComputer -Identity $Computer -Replace @{"$LapsPasswordExpirationAttribute" = $(Get-Date).AddDays(-1).Ticks} -Credential $Credential
+                }
+                else {
+                    Set-ADComputer -Identity $Computer -Replace @{"$LapsPasswordExpirationAttribute" = $(Get-Date).AddDays(-1).Ticks}
+                }
                 Write-Verbose -Message "The LAPS password expiration attribute for $Comptuer has been set to $((Get-ADcomputer -Identity $Computer -Properties $LapsPasswordExpirationAttribute).$LapsPasswordExpirationAttribute)"
 
                 Write-Verbose -Message "Invoking group policy update on $Computer to force LAPS to change the password."
