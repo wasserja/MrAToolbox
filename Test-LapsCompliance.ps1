@@ -117,11 +117,13 @@ function Test-LapsCompliance {
                         }
                         else {
                             Write-Warning -Message "The local administrator password on $Computer was last set on $($LocalAdministratorPasswordLastSet.PasswordLastSet) which is NOT within $($IsLapsConfigured.PasswordAgeDays) days."
+                            $IsLapsLocalAdministratorPasswordValid = $false
                             $IsLapsCompliant = $false
                         }
                     }
                     else {
                         Write-Warning -Message "LAPS registry policy keys were NOT found on $Computer"
+                        $IsLapsConfigured = $false
                         $IsLapsCompliant = $false
                     }
                 }
