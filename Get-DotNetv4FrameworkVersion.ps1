@@ -40,18 +40,23 @@ function Get-DotNetv4FrameworkVersion {
         function Get-DotNetVersionfromRegistry {
             $DotNetv4FullKey = 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full'
             $DotNetv45VersionTable = @{
-                '4.0.30319' = '.NET Framework 4';
-                '378389'    = '.NET Framework 4.5';
-                '378675'    = '.NET Framework 4.5.1';
-                '378758'    = '.NET Framework 4.5.1';
-                '379893'    = '.NET Framework 4.5.2';
-                '393295'    = '.NET Framework 4.6';
-                '393297'    = '.NET Framework 4.6';
-                '394254'    = '.NET Framework 4.6.1';
-                '394271'    = '.NET Framework 4.6.1';
-                '394802'    = '.NET Framework 4.6.2';
-                '394806'    = '.NET Framework 4.6.2';
+                '4.0.30319' = '.NET Framework 4'
+                '378389'    = '.NET Framework 4.5'
+                '378675'    = '.NET Framework 4.5.1'
+                '378758'    = '.NET Framework 4.5.1'
+                '379893'    = '.NET Framework 4.5.2'
+                '393295'    = '.NET Framework 4.6'
+                '393297'    = '.NET Framework 4.6'
+                '394254'    = '.NET Framework 4.6.1'
+                '394271'    = '.NET Framework 4.6.1'
+                '394802'    = '.NET Framework 4.6.2'
+                '394806'    = '.NET Framework 4.6.2'
                 '460805'    = '.NET Framework 4.7'
+                '460798'    = '.NET Framework 4.7'
+                '461308'    = '.NET Framework 4.7.1'
+                '461310'    = '.NET Framework 4.7.1'
+                '461814'    = '.NET Framework 4.7.2'
+                '461808'    = '.NET Framework 4.7.2'
             }    
         
             if (Test-Path $DotNetv4FullKey) {
