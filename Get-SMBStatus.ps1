@@ -72,7 +72,7 @@ function Get-SMBStatus {
                         $SMBServerRegistryStatus = 'Disabled'
                         }
                     elseif ($SMBServerRegistry.$SMBVersion -eq 1) {
-                        Write-Verbose "$SMBVersion registry key exists and is set to 0."
+                        Write-Verbose "$SMBVersion registry key exists and is set to 1."
                         $SMBServerRegistryStatus = 'Enabled'
                         }
                     else {
